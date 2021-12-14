@@ -20,4 +20,9 @@ public static class VectorExtension
         return new Vector3(vector.x, 0f, vector.z);
     }
 
+    public static Vector3 XZ(this Vector2Int vector)
+    {
+        return new Vector3(vector.x, 0f, vector.y);
+    }
+
 }
