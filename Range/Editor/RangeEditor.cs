@@ -3,12 +3,10 @@ using UnityEditor;
 using System.Collections;
 
 // Author: Pierre CAMILLI
-
 [CanEditMultipleObjects]
-[CustomPropertyDrawer(typeof(Range))]
-public class RangeEditor : PropertyDrawer {
+public abstract class RangeEditor<T> : PropertyDrawer where T : System.IComparable<T> {
 
-    SerializedProperty Min, Max, Restrict;
+    protected SerializedProperty Min, Max;
     string name;
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -49,10 +47,10 @@ public class RangeEditor : PropertyDrawer {
         EditorGUI.BeginProperty(contentPosition, label, Min);
         {
             EditorGUI.BeginChangeCheck();
-            float value = EditorGUI.FloatField(contentPosition, new GUIContent("Min"), Min.floatValue);
+            T value = PropertyEditorField(contentPosition, new GUIContent("Min"), GetPropertyValue(Min));
             if (EditorGUI.EndChangeCheck())
             {
-                Min.floatValue = MinValue(value);
+                SetPropertyValue(Min, SafeMinValue(value));
             }
         }
         EditorGUI.EndProperty();
@@ -63,37 +61,33 @@ public class RangeEditor : PropertyDrawer {
         EditorGUI.BeginProperty(contentPosition, label, Max);
         {
             EditorGUI.BeginChangeCheck();
-            float value = EditorGUI.FloatField(contentPosition, new GUIContent("Max"), Max.floatValue);
+            T value = PropertyEditorField(contentPosition, new GUIContent("Max"), GetPropertyValue(Max));
             if (EditorGUI.EndChangeCheck())
             {
-                Max.floatValue = MaxValue(value);
+                SetPropertyValue(Max, SafeMaxValue(value));
             }
         }
         EditorGUI.EndProperty();
     }
 
-    float MinValue(float value)
+    T SafeMinValue(T value)
     {
-        if (Max.floatValue < value)
+        T propertyValue = GetPropertyValue(Max);
+        if (propertyValue.CompareTo(value) <= 0)
         {
-            return Max.floatValue;
+            return propertyValue;
         }
-        else
-        {
-            return value;
-        }
+        return value;
     }
 
-    float MaxValue(float value)
+    T SafeMaxValue(T value)
     {
-        if (Min.floatValue > value)
+        T propertyValue = GetPropertyValue(Min);
+        if (propertyValue.CompareTo(value) >= 0)
         {
-            return Min.floatValue;
+            return propertyValue;
         }
-        else
-        {
-            return value;
-        }
+        return value;
     }
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -101,4 +95,47 @@ public class RangeEditor : PropertyDrawer {
         return Screen.width < 333 ? (16f + 18f) : 16f;
     }
 
+    protected abstract T GetPropertyValue(SerializedProperty property);
+
+    protected abstract void SetPropertyValue(SerializedProperty property, T value);
+
+    protected abstract T PropertyEditorField(Rect position, GUIContent content, T value);
+}
+
+[CustomPropertyDrawer(typeof(Range))]
+public class RangeEditorFloat : RangeEditor<float>
+{
+    protected override float GetPropertyValue(SerializedProperty property)
+    {
+        return property.floatValue;
+    }
+
+    protected override float PropertyEditorField(Rect position, GUIContent content, float value)
+    {
+        return EditorGUI.FloatField(position, content, value);
+    }
+
+    protected override void SetPropertyValue(SerializedProperty property, float value)
+    {
+        property.floatValue = value;
+    }
+}
+
+[CustomPropertyDrawer(typeof(RangeInt))]
+public class RangeEditorInt : RangeEditor<int>
+{
+    protected override int GetPropertyValue(SerializedProperty property)
+    {
+        return property.intValue;
+    }
+
+    protected override int PropertyEditorField(Rect position, GUIContent content, int value)
+    {
+        return EditorGUI.IntField(position, content, value);
+    }
+
+    protected override void SetPropertyValue(SerializedProperty property, int value)
+    {
+        property.intValue = value;
+    }
 }

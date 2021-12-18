@@ -3,8 +3,24 @@ using System.Collections;
 
 // Author: Pierre CAMILLI
 
+public interface IRange<T> where T : System.IComparable<T>
+{
+    public T Min { get; }
+    public T Max { get; }
+    public bool Set(T min, T max);
+    public T Length { get; }
+
+    public T Clamp(T value);
+    public T InverseLerp(T value);
+    public T Lerp(T value);
+    public T LerpAngle(T value);
+    public T LerpUnclamped(T value);
+    public void Translate(T value);
+}
+
 [System.Serializable]
-public struct Range {
+public struct Range : IRange<float>
+{
 
     #region Getter Setter
     [SerializeField]
@@ -20,7 +36,7 @@ public struct Range {
     /// Maximal value
     /// </summary>
     public float Max { get { return m_max; } }
-    
+
     /// <summary>
     /// Set min and max values
     /// </summary>
@@ -29,7 +45,7 @@ public struct Range {
     /// <returns>True if max parameter is greater or equal than min parameter</returns>
     public bool Set(float min, float max)
     {
-        if (min <= max)
+        if (min.CompareTo(max) >= 0)
         {
             m_min = min;
             m_max = max;
@@ -49,9 +65,9 @@ public struct Range {
     /// </summary>
     /// <param name="min">Minimal value of the bounds</param>
     /// <param name="max">Maximal value of the bounds</param>
-    Range(float min = 0.0f, float max = 0.0f)
+    public Range(float min, float max)
     {
-        if (min <= max)
+        if (min.CompareTo(max) >= 0)
         {
             m_min = min;
             m_max = max;
@@ -148,6 +164,159 @@ public struct Range {
     /// </summary>
     /// <param name="value"></param>
     public void Translate(float value)
+    {
+        m_min += value;
+        m_max += value;
+    }
+    #endregion
+}
+
+[System.Serializable]
+public struct RangeInt : IRange<int>
+{
+
+    #region Getter Setter
+    [SerializeField]
+    private int m_min;
+    /// <summary>
+    /// Minimal value
+    /// </summary>
+    public int Min { get { return m_min; } }
+
+    [SerializeField]
+    private int m_max;
+    /// <summary>
+    /// Maximal value
+    /// </summary>
+    public int Max { get { return m_max; } }
+
+    /// <summary>
+    /// Set min and max values
+    /// </summary>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <returns>True if max parameter is greater or equal than min parameter</returns>
+    public bool Set(int min, int max)
+    {
+        if (min.CompareTo(max) >= 0)
+        {
+            m_min = min;
+            m_max = max;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Difference between max and min value
+    /// </summary>
+    public int Length { get { return m_max - m_min; } }
+    #endregion
+
+    /// <summary>
+    /// One dimensional bounds
+    /// </summary>
+    /// <param name="min">Minimal value of the bounds</param>
+    /// <param name="max">Maximal value of the bounds</param>
+    public RangeInt(int min, int max)
+    {
+        if (min.CompareTo(max) >= 0)
+        {
+            m_min = min;
+            m_max = max;
+        }
+        else
+        {
+            m_max = min;
+            m_min = min;
+        }
+    }
+
+    #region Operators
+
+    public static RangeInt operator -(RangeInt bounds)
+    {
+        return new RangeInt(-bounds.m_max, -bounds.m_min);
+    }
+
+    public static RangeInt operator +(RangeInt bounds, int value)
+    {
+        return new RangeInt(bounds.m_min + value, bounds.m_max + value);
+    }
+
+    public static RangeInt operator -(RangeInt bounds, int value)
+    {
+        return bounds + (-value);
+    }
+
+    public static RangeInt operator +(RangeInt bounds1, RangeInt bounds2)
+    {
+        return new RangeInt(bounds1.m_min + bounds2.m_min, bounds1.m_max + bounds2.m_max);
+    }
+
+    public static RangeInt operator -(RangeInt bounds1, RangeInt bounds2)
+    {
+        return bounds1 + (-bounds2);
+    }
+
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Clamp a value between the bounds
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public int Clamp(int value)
+    {
+        return Mathf.Clamp(value, m_min, m_max);
+    }
+
+    /// <summary>
+    /// Calculates the linear parameter t that produces the interpolant value within the range [a, b].
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public int InverseLerp(int value)
+    {
+        return (int)Mathf.InverseLerp(m_min, m_max, value);
+    }
+
+    /// <summary>
+    /// Linearly interpolate value between the bounds
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public int Lerp(int value)
+    {
+        return (int)Mathf.Lerp(m_min, m_max, value);
+    }
+
+    /// <summary>
+    /// Same as Lerp but makes sure the values interpolate correctly when they wrap around
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public int LerpAngle(int value)
+    {
+        return (int)Mathf.LerpAngle(m_min, m_max, value);
+    }
+
+    /// <summary>
+    /// Linearly interpolate value between the bounds
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public int LerpUnclamped(int value)
+    {
+        return (int)Mathf.LerpUnclamped(m_min, m_max, value);
+    }
+
+    /// <summary>
+    /// Increase the value of both bounds by the specificated value
+    /// </summary>
+    /// <param name="value"></param>
+    public void Translate(int value)
     {
         m_min += value;
         m_max += value;
