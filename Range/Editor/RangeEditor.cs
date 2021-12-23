@@ -6,31 +6,27 @@ using System.Collections;
 [CanEditMultipleObjects]
 public abstract class RangeEditor<T> : PropertyDrawer where T : System.IComparable<T> {
 
-    protected SerializedProperty Min, Max;
-    string name;
+    protected SerializedProperty _min, _max;
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         const uint nbParts = 2;
         const float spaceWidth = 5f;
 
-        // get the name before it's gone
-        name = property.displayName;
-
         // get the Min and Max values
         property.NextVisible(true);
-        Min = property.Copy();
+        _min = property.Copy();
         property.NextVisible(true);
-        Max = property.Copy();
+        _max = property.Copy();
 
-        Rect contentPosition = EditorGUI.PrefixLabel(position, new GUIContent(name));
+        Rect contentPosition = EditorGUI.PrefixLabel(position, label, EditorStyles.label);
 
-        if(position.height > 16f)
+        if (position.height > 16f)
         {
-            position.height = 16f;
+            position.height = EditorGUIUtility.singleLineHeight;
             EditorGUI.indentLevel += 1;
             contentPosition = EditorGUI.IndentedRect(position);
-            contentPosition.y += 18f;
+            contentPosition.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
         }
 
         float partWidth = (contentPosition.width / nbParts) - (spaceWidth * 0.5f * (nbParts - 1)) ;
@@ -44,13 +40,13 @@ public abstract class RangeEditor<T> : PropertyDrawer where T : System.IComparab
         // Begin/end property & change check make each field
         // Behave correctly when multi-object editing.
         // MIN
-        EditorGUI.BeginProperty(contentPosition, label, Min);
+         GUIContent minContent = EditorGUI.BeginProperty(contentPosition, new GUIContent("Min"), _min);
         {
             EditorGUI.BeginChangeCheck();
-            T value = PropertyEditorField(contentPosition, new GUIContent("Min"), GetPropertyValue(Min));
+            T value = PropertyEditorField(contentPosition, minContent, GetPropertyValue(_min));
             if (EditorGUI.EndChangeCheck())
             {
-                SetPropertyValue(Min, SafeMinValue(value));
+                SetPropertyValue(_min, SafeMinValue(value));
             }
         }
         EditorGUI.EndProperty();
@@ -58,13 +54,13 @@ public abstract class RangeEditor<T> : PropertyDrawer where T : System.IComparab
         contentPosition.x += partWidth + spaceWidth;
 
         // MAX
-        EditorGUI.BeginProperty(contentPosition, label, Max);
+        GUIContent maxContent = EditorGUI.BeginProperty(contentPosition, new GUIContent("Max"), _max);
         {
             EditorGUI.BeginChangeCheck();
-            T value = PropertyEditorField(contentPosition, new GUIContent("Max"), GetPropertyValue(Max));
+            T value = PropertyEditorField(contentPosition, maxContent, GetPropertyValue(_max));
             if (EditorGUI.EndChangeCheck())
             {
-                SetPropertyValue(Max, SafeMaxValue(value));
+                SetPropertyValue(_max, SafeMaxValue(value));
             }
         }
         EditorGUI.EndProperty();
@@ -72,7 +68,7 @@ public abstract class RangeEditor<T> : PropertyDrawer where T : System.IComparab
 
     T SafeMinValue(T value)
     {
-        T propertyValue = GetPropertyValue(Max);
+        T propertyValue = GetPropertyValue(_max);
         if (propertyValue.CompareTo(value) <= 0)
         {
             return propertyValue;
@@ -82,7 +78,7 @@ public abstract class RangeEditor<T> : PropertyDrawer where T : System.IComparab
 
     T SafeMaxValue(T value)
     {
-        T propertyValue = GetPropertyValue(Min);
+        T propertyValue = GetPropertyValue(_min);
         if (propertyValue.CompareTo(value) >= 0)
         {
             return propertyValue;
@@ -92,7 +88,7 @@ public abstract class RangeEditor<T> : PropertyDrawer where T : System.IComparab
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        return Screen.width < 333 ? (16f + 18f) : 16f;
+        return  Screen.width < 333 ? EditorGUIUtility.singleLineHeight : 16f; // EditorGUIUtility.singleLineHeight
     }
 
     protected abstract T GetPropertyValue(SerializedProperty property);
@@ -135,6 +131,25 @@ public class RangeEditorInt : RangeEditor<int>
     }
 
     protected override void SetPropertyValue(SerializedProperty property, int value)
+    {
+        property.intValue = value;
+    }
+}
+
+[CustomPropertyDrawer(typeof(RangeByte))]
+public class RangeEditorByte : RangeEditor<byte>
+{
+    protected override byte GetPropertyValue(SerializedProperty property)
+    {
+        return (byte)property.intValue;
+    }
+
+    protected override byte PropertyEditorField(Rect position, GUIContent content, byte value)
+    {
+        return (byte)EditorGUI.IntField(position, content, value);
+    }
+
+    protected override void SetPropertyValue(SerializedProperty property, byte value)
     {
         property.intValue = value;
     }
