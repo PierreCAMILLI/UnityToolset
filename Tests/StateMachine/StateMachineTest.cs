@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Toolset.HFSM;
 
 namespace HFSM
 {
@@ -35,14 +36,14 @@ namespace HFSM
 
             StateMachine stateMachine = StateMachine.Builder<string>.CreateStateMachine()
                 .AddState("A")
-                    .AddTransition("B", new HFSM.Transition(() => A_B, () => { A_B = false; }))
+                    .AddTransition("B", new Transition(() => A_B, () => { A_B = false; }))
                     .EndState()
                 .AddState("B")
-                    .AddTransition("A", new HFSM.Transition(() => B_A, () => { B_A = false; }))
-                    .AddTransition("C", new HFSM.Transition(() => B_C, () => { B_C = false; }))
+                    .AddTransition("A", new Transition(() => B_A, () => { B_A = false; }))
+                    .AddTransition("C", new Transition(() => B_C, () => { B_C = false; }))
                     .EndState()
                 .AddState("C")
-                    .AddTransition("A", new HFSM.Transition(() => C_A, () => { C_A = false; }))
+                    .AddTransition("A", new Transition(() => C_A, () => { C_A = false; }))
                     .EndState()
                 .End();
 

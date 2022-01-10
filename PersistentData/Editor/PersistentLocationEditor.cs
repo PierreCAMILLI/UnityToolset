@@ -3,60 +3,63 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Persistent
+namespace Toolset
 {
-    [CustomEditor(typeof(Location), true)]
-    public class PersistentLocationEditor : Editor
+    namespace Persistent
     {
-        SerializedProperty _fileNameProp;
-        SerializedProperty _fileExtensionProp;
-        SerializedProperty _pathProp;
-
-        private void OnEnable()
+        [CustomEditor(typeof(Location), true)]
+        public class PersistentLocationEditor : Editor
         {
-            _fileNameProp = serializedObject.FindProperty("_fileName");
-            _fileExtensionProp = serializedObject.FindProperty("_fileExtension");
-            _pathProp = serializedObject.FindProperty("_path");
-        }
+            SerializedProperty _fileNameProp;
+            SerializedProperty _fileExtensionProp;
+            SerializedProperty _pathProp;
 
-        public override void OnInspectorGUI()
-        {
-            DrawDefaultInspector();
-
-            GUILayout.Space(10f);
-
-            Location persistent = (Location)target;
-
-            GUIStyle labelStyle = GUI.skin.label;
-            labelStyle.fontStyle = FontStyle.Bold;
-            GUILayout.Label("Full Path: ");
-            labelStyle.fontStyle = FontStyle.Normal;
-
-            labelStyle.wordWrap = true;
-            if (_fileNameProp.stringValue.Length > 0 && _fileExtensionProp.stringValue.Length > 0)
+            private void OnEnable()
             {
-                EditorGUILayout.SelectableLabel(persistent.DefaultFullPath, labelStyle);
+                _fileNameProp = serializedObject.FindProperty("_fileName");
+                _fileExtensionProp = serializedObject.FindProperty("_fileExtension");
+                _pathProp = serializedObject.FindProperty("_path");
             }
-            else
-            {
-                Color baseColor = labelStyle.normal.textColor;
 
+            public override void OnInspectorGUI()
+            {
+                DrawDefaultInspector();
+
+                GUILayout.Space(10f);
+
+                Location persistent = (Location)target;
+
+                GUIStyle labelStyle = GUI.skin.label;
                 labelStyle.fontStyle = FontStyle.Bold;
-                labelStyle.normal.textColor = Color.red;
-                GUILayout.Label("Path isn't valid! Filename and file extention need to be filled.");
+                GUILayout.Label("Full Path: ");
                 labelStyle.fontStyle = FontStyle.Normal;
-                labelStyle.normal.textColor = baseColor;
-            }
 
-            if (GUILayout.Button("Delete Save File"))
-            {
-                if (persistent.Delete())
+                labelStyle.wordWrap = true;
+                if (_fileNameProp.stringValue.Length > 0 && _fileExtensionProp.stringValue.Length > 0)
                 {
-                    Debug.Log(persistent.FullFilename + " file successfully deleted.");
+                    EditorGUILayout.SelectableLabel(persistent.DefaultFullPath, labelStyle);
                 }
                 else
                 {
-                    Debug.LogWarning("No save file named " + persistent.FullFilename + " exists.");
+                    Color baseColor = labelStyle.normal.textColor;
+
+                    labelStyle.fontStyle = FontStyle.Bold;
+                    labelStyle.normal.textColor = Color.red;
+                    GUILayout.Label("Path isn't valid! Filename and file extention need to be filled.");
+                    labelStyle.fontStyle = FontStyle.Normal;
+                    labelStyle.normal.textColor = baseColor;
+                }
+
+                if (GUILayout.Button("Delete Save File"))
+                {
+                    if (persistent.Delete())
+                    {
+                        Debug.Log(persistent.FullFilename + " file successfully deleted.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("No save file named " + persistent.FullFilename + " exists.");
+                    }
                 }
             }
         }

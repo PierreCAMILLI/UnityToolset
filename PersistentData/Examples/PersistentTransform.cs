@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Toolset.Persistent;
 
-[CreateAssetMenu(fileName = "Persistent Debug Cube", menuName = "Persistent/Debug Cube")]
-public class PersistentTransform : Persistent.Data<PersistentTransform.TransformStruct>
+[CreateAssetMenu(fileName = "Persistent Debug Cube", menuName = "Toolset/Persistent/Debug Cube")]
+public class PersistentTransform : Data<PersistentTransform.TransformStruct>
 {
     public struct TransformStruct
     {

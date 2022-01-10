@@ -3,193 +3,221 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public class DebugSettingsWindow : EditorWindow
+namespace Toolset
 {
-    private static DebugSettingsSerialized _settings;
-    private static List<string> _settingNames;
-
-    private SerializedObject _serializedObject;
-    private SerializedProperty _selectedProperty;
-
-    [MenuItem("Window/Debug Settings Editor")]
-    static void Init()
+    public class DebugSettingsWindow : EditorWindow, IHasCustomMenu
     {
-        Open(null);
-    }
+        private const string WindowsName = "Debug Settings Editor";
 
-    public static void Open(DebugSettingsSerialized settings)
-    {
-        // DebugSettingsWindow window = (DebugSettingsWindow)EditorWindow.GetWindow(typeof(DebugSettingsWindow));
-        DebugSettingsWindow window = GetWindow<DebugSettingsWindow>("Debug Settings Editor");
+        [SerializeField]
+        private MonoScript _script;
 
-        if (settings != null)
+        [SerializeField]
+        private List<string> _settingNames = new List<string>();
+        public IList<string> SettingNames
         {
-            _settings = settings;
-        }
-        else
-        {
-            FetchSettings();
-        }
-
-        if (_settings != null)
-        {
-            if (_settingNames == null)
+            get
             {
-                _settingNames = new List<string>();
-            }
-            else
-            {
-                _settingNames.Clear();
-            }
-
-            _settingNames.Add("None");
-            if (_settings != null)
-            {
-                if (_settings.DebugSettingNames == null)
+                if (_settingNames == null)
                 {
-                    _settings.Init();
+                    _settingNames = new List<string>();
                 }
-                _settingNames.AddRange(_settings.DebugSettingNames);
+                if (_settingNames.Count == 0)
+                {
+                    _settingNames.Add("None");
+                }
+                return _settingNames;
+            }
+        }
+        [SerializeReference]
+        [SerializeField]
+        private List<DebugSetting> _debugSettings = new List<DebugSetting>();
+        public IList<DebugSetting> DebugSettings
+        {
+            get
+            {
+                if (_debugSettings == null)
+                {
+                    _debugSettings = new List<DebugSetting>();
+                }
+                return _debugSettings;
             }
         }
 
-        window.Show();
-    }
+        [SerializeField]
+        private int _popupIndex = 0;
 
-    void OnGUI()
-    {
-        GUILayout.Label("Debug Settings Editor", EditorStyles.boldLabel);
+        private SerializedObject _serializedObject;
+        private SerializedProperty _selectedProperty;
 
-        if (!FetchSettings())
+        public DebugSetting SelectedSetting
         {
-            GUILayout.Label("Create a Debug Settings Serialized object before using the Debug Settings Editor.");
-        }
-        else
-        {
-            _serializedObject = new SerializedObject(_settings);
-
-            int index = EditorGUILayout.Popup("Setting", _settings.popupIndex, _settingNames.ToArray());
-
-            SerializedProperty properties = _serializedObject.FindProperty("_debugSettings");
-            SelectSetting(properties, index);
-
-            if (_settings.popupIndex != 0)
+            get
             {
-                RenameSetting(_settings.popupIndex, EditorGUILayout.TextField("Name", _settingNames[_settings.popupIndex]));
+                if (_popupIndex >= 1)
+                {
+                    return DebugSettings[_popupIndex - 1];
+                }
+                return null;
+            }
+        }
 
+        [MenuItem("Window/Debug Settings Editor")]
+        static void Init()
+        {
+            Open();
+        }
+
+        public static void Open()
+        {
+            DebugSettingsWindow window = GetWindow<DebugSettingsWindow>(WindowsName);
+
+            window.Show();
+        }
+
+        void OnGUI()
+        {
+            GUILayout.Label("Debug Settings Editor", EditorStyles.boldLabel);
+
+            _serializedObject = new SerializedObject(this);
+
+            MonoScript newScript = EditorGUILayout.ObjectField("Debug Script", _script, typeof(MonoScript), false) as MonoScript;
+
+            if (newScript != _script)
+            {
+                if (newScript == null || newScript.GetClass().IsSubclassOf(typeof(DebugSetting)))
+                {
+                    ClearAll();
+                    _script = newScript;
+
+                    _serializedObject.ApplyModifiedProperties();
+                }
+            }
+
+            if (_script != null)
+            {
                 EditorGUILayout.Space();
 
-                GUILayout.Label("Setting Parameters", EditorStyles.boldLabel);
-                if (_selectedProperty != null)
+                string[] array = new string[SettingNames.Count];
+                SettingNames.CopyTo(array, 0);
+                int index = EditorGUILayout.Popup("Setting", _popupIndex, array);
+
+                SelectSetting(index);
+
+                if (_popupIndex > 0)
                 {
-                    EditorGUI.indentLevel++;
-                    DrawProperties(_selectedProperty, true);
-                    EditorGUI.indentLevel--;
+                    RenameSetting(_popupIndex, EditorGUILayout.TextField("Name", SettingNames[_popupIndex]));
+
+                    EditorGUILayout.Space();
+
+                    GUILayout.Label("Setting Parameters", EditorStyles.boldLabel);
+                    if (_selectedProperty != null)
+                    {
+                        EditorGUI.indentLevel++;
+                        DrawProperties(_selectedProperty, true);
+                        EditorGUI.indentLevel--;
+                    }
+
+                    EditorGUILayout.Space();
+
+                    if (GUILayout.Button("(-) Remove Setting"))
+                    {
+                        GUI.FocusControl(null);
+                        _popupIndex = RemoveSetting(_popupIndex);
+                    }
                 }
 
-                EditorGUILayout.Space();
-
-                if (GUILayout.Button("(-) Remove Setting"))
+                if (GUILayout.Button("(+) Add Setting"))
                 {
                     GUI.FocusControl(null);
-                    _settings.popupIndex = RemoveSetting(_settings.popupIndex);
+                    _popupIndex = AddSetting();
+                }
+
+                _serializedObject.ApplyModifiedProperties();
+            }
+        }
+
+        protected void DrawProperties(SerializedProperty prop, bool drawChildren)
+        {
+            string lastPropPath = string.Empty;
+            foreach (SerializedProperty p in prop)
+            {
+                if (p.isArray && p.propertyType == SerializedPropertyType.Generic)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    p.isExpanded = EditorGUILayout.Foldout(p.isExpanded, p.displayName);
+                    EditorGUILayout.EndHorizontal();
+
+                    if (p.isExpanded)
+                    {
+                        EditorGUI.indentLevel++;
+                        DrawProperties(p, drawChildren);
+                        EditorGUI.indentLevel--;
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(lastPropPath) && p.propertyPath.Contains(lastPropPath))
+                    {
+                        continue;
+                    }
+                    lastPropPath = p.propertyPath;
+                    EditorGUILayout.PropertyField(p, drawChildren);
                 }
             }
+        }
 
-            if (GUILayout.Button("(+) Add Setting"))
+        protected void SelectSetting(int popupIndex)
+        {
+            DebugSetting.Current = popupIndex == 0 ? null : DebugSettings[popupIndex - 1];
+            _popupIndex = popupIndex;
+
+            if (popupIndex > 0)
             {
-                GUI.FocusControl(null);
-                _settings.popupIndex = AddSetting();
+                SerializedProperty property = _serializedObject.FindProperty("_debugSettings");
+                if (property != null)
+                {
+                    _selectedProperty = property.GetArrayElementAtIndex(popupIndex - 1);
+                }
             }
+        }
+
+        protected void RenameSetting(int popupIndex, string settingName)
+        {
+            SettingNames[popupIndex] = settingName;
+        }
+
+        protected int RemoveSetting(int popupIndex)
+        {
+            SettingNames.RemoveAt(popupIndex);
+            DebugSettings.RemoveAt(popupIndex - 1);
             _serializedObject.ApplyModifiedProperties();
-        }
-    }
-
-    private static bool FetchSettings()
-    {
-        if (_settings == null)
-        {
-            string[] guids = AssetDatabase.FindAssets($"t:{nameof(DebugSettingsSerialized)}" , new[] { "Assets" } );
-            if (guids.Length > 0)
+            if (popupIndex >= SettingNames.Count)
             {
-                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                _settings = AssetDatabase.LoadAssetAtPath<DebugSettingsSerialized>(path);
+                return popupIndex - 1;
             }
-            if (_settings != null)
-            {
-                Open(_settings);
-            }
+            return popupIndex;
         }
 
-        return _settings != null;
-    }
-
-    protected void DrawProperties(SerializedProperty prop, bool drawChildren)
-    {
-        string lastPropPath = string.Empty;
-        foreach (SerializedProperty p in prop)
+        protected int AddSetting()
         {
-            if (p.isArray && p.propertyType == SerializedPropertyType.Generic)
-            {
-                EditorGUILayout.BeginHorizontal();
-                p.isExpanded = EditorGUILayout.Foldout(p.isExpanded, p.displayName);
-                EditorGUILayout.EndHorizontal();
-
-                if (p.isExpanded)
-                {
-                    EditorGUI.indentLevel++;
-                    DrawProperties(p, drawChildren);
-                    EditorGUI.indentLevel--;
-                }
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(lastPropPath) && p.propertyPath.Contains(lastPropPath))
-                {
-                    continue;
-                }
-                lastPropPath = p.propertyPath;
-                EditorGUILayout.PropertyField(p, drawChildren);
-            }
+            SettingNames.Add("New Setting " + SettingNames.Count);
+            DebugSetting setting = System.Activator.CreateInstance(_script.GetClass()) as DebugSetting;
+            DebugSettings.Add(setting);
+            return DebugSettings.Count;
         }
-    }
 
-    protected void SelectSetting(SerializedProperty properties, int popupIndex)
-    {
-        DebugSettings.Current = popupIndex == 0 ? null : _settings.DebugSettings[popupIndex - 1];
-        _settings.popupIndex = popupIndex;
-
-        if (popupIndex > 0)
+        public void ClearAll()
         {
-            _selectedProperty = properties.GetArrayElementAtIndex(popupIndex - 1);
+            _script = null;
+            _settingNames.Clear();
+            _debugSettings.Clear();
+            _popupIndex = 0;
         }
-        _serializedObject.ApplyModifiedProperties();
-    }
 
-    protected void RenameSetting(int popupIndex, string settingName)
-    {
-        _settingNames[popupIndex] = settingName;
-        _settings.DebugSettingNames[popupIndex - 1] = settingName;
-    }
-
-    protected int RemoveSetting(int popupIndex)
-    {
-        _settingNames.RemoveAt(popupIndex);
-        _settings.RemoveSetting(popupIndex - 1);
-        _serializedObject.ApplyModifiedProperties();
-        if (popupIndex >= _settingNames.Count)
+        public void AddItemsToMenu(GenericMenu menu)
         {
-            return popupIndex - 1;
+            menu.AddItem(new GUIContent("Clear All"), false, ClearAll);
         }
-        _serializedObject.ApplyModifiedProperties();
-        return popupIndex;
-    }
-
-    protected int AddSetting()
-    {
-        _settingNames.Add("New Setting " + _settingNames.Count);
-        _settings.AddSetting("New Setting " + _settingNames.Count);
-        _serializedObject.ApplyModifiedProperties();
-        return _settings.DebugSettings.Count;
     }
 }

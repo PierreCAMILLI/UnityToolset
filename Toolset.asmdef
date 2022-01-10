@@ -1,6 +1,6 @@
 {
     "name": "Toolset",
-    "rootNamespace": "",
+    "rootNamespace": "Toolset",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
