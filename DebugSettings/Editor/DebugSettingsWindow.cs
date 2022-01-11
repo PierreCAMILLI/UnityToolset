@@ -7,7 +7,23 @@ namespace Toolset
 {
     public class DebugSettingsWindow : EditorWindow, IHasCustomMenu
     {
+        private const string WindowsLocation = "Window/Toolset/Debug Settings Editor";
         private const string WindowsName = "Debug Settings Editor";
+        private const string WindowsTabName = "Debug Settings Editor";
+
+        private const string WindowsHeader = "Debug Settings Editor";
+        private const string DebugScriptLabel = "Debug Script";
+        private const string SettingLabel = "Setting";
+        private const string NameLabel = "Name";
+
+        private const string DefaultNewSettingPrefix = "New Setting ";
+        private const string NoneSettingName = "None";
+
+        private const string SettingParametersHeader = "Setting Parameters";
+        private const string RemoveButtonLabel = "(-) Remove Setting";
+        private const string AddButtonLabel = "(+) Add Setting";
+
+        private const string ClearAllMenuLabel = "Clear All";
 
         [SerializeField]
         private MonoScript _script;
@@ -24,7 +40,7 @@ namespace Toolset
                 }
                 if (_settingNames.Count == 0)
                 {
-                    _settingNames.Add("None");
+                    _settingNames.Add(NoneSettingName);
                 }
                 return _settingNames;
             }
@@ -62,7 +78,7 @@ namespace Toolset
             }
         }
 
-        [MenuItem("Window/Debug Settings Editor")]
+        [MenuItem(WindowsLocation)]
         static void Init()
         {
             Open();
@@ -70,18 +86,19 @@ namespace Toolset
 
         public static void Open()
         {
-            DebugSettingsWindow window = GetWindow<DebugSettingsWindow>(WindowsName);
+            DebugSettingsWindow window = GetWindow<DebugSettingsWindow>(false, WindowsName, true);
+            window.titleContent = new GUIContent(WindowsTabName);
 
             window.Show();
         }
 
         void OnGUI()
         {
-            GUILayout.Label("Debug Settings Editor", EditorStyles.boldLabel);
+            GUILayout.Label(WindowsHeader, EditorStyles.largeLabel);
 
             _serializedObject = new SerializedObject(this);
 
-            MonoScript newScript = EditorGUILayout.ObjectField("Debug Script", _script, typeof(MonoScript), false) as MonoScript;
+            MonoScript newScript = EditorGUILayout.ObjectField(DebugScriptLabel, _script, typeof(MonoScript), false) as MonoScript;
 
             if (newScript != _script)
             {
@@ -100,17 +117,17 @@ namespace Toolset
 
                 string[] array = new string[SettingNames.Count];
                 SettingNames.CopyTo(array, 0);
-                int index = EditorGUILayout.Popup("Setting", _popupIndex, array);
+                int index = EditorGUILayout.Popup(SettingLabel, _popupIndex, array);
 
                 SelectSetting(index);
 
                 if (_popupIndex > 0)
                 {
-                    RenameSetting(_popupIndex, EditorGUILayout.TextField("Name", SettingNames[_popupIndex]));
+                    RenameSetting(_popupIndex, EditorGUILayout.TextField(NameLabel, SettingNames[_popupIndex]));
 
                     EditorGUILayout.Space();
 
-                    GUILayout.Label("Setting Parameters", EditorStyles.boldLabel);
+                    GUILayout.Label(SettingParametersHeader, EditorStyles.boldLabel);
                     if (_selectedProperty != null)
                     {
                         EditorGUI.indentLevel++;
@@ -120,14 +137,14 @@ namespace Toolset
 
                     EditorGUILayout.Space();
 
-                    if (GUILayout.Button("(-) Remove Setting"))
+                    if (GUILayout.Button(RemoveButtonLabel))
                     {
                         GUI.FocusControl(null);
                         _popupIndex = RemoveSetting(_popupIndex);
                     }
                 }
 
-                if (GUILayout.Button("(+) Add Setting"))
+                if (GUILayout.Button(AddButtonLabel))
                 {
                     GUI.FocusControl(null);
                     _popupIndex = AddSetting();
@@ -201,7 +218,7 @@ namespace Toolset
 
         protected int AddSetting()
         {
-            SettingNames.Add("New Setting " + SettingNames.Count);
+            SettingNames.Add(DefaultNewSettingPrefix + SettingNames.Count);
             DebugSetting setting = System.Activator.CreateInstance(_script.GetClass()) as DebugSetting;
             DebugSettings.Add(setting);
             return DebugSettings.Count;
@@ -217,7 +234,7 @@ namespace Toolset
 
         public void AddItemsToMenu(GenericMenu menu)
         {
-            menu.AddItem(new GUIContent("Clear All"), false, ClearAll);
+            menu.AddItem(new GUIContent(ClearAllMenuLabel), false, ClearAll);
         }
     }
 }
