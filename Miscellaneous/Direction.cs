@@ -29,43 +29,56 @@ namespace Toolset
 
     public static class DirectionExtension
     {
-        private static Vector2Int upRight = Vector2Int.up + Vector2Int.right;
-        private static Vector2Int upLeft = Vector2Int.up + Vector2Int.left;
-        private static Vector2Int downLeft = Vector2Int.down + Vector2Int.left;
-        private static Vector2Int downRight = Vector2Int.down + Vector2Int.right;
-
-        private static Vector2 upRight2 = Vector2.up + Vector2.right;
-        private static Vector2 upLeft2 = Vector2.up + Vector2.left;
-        private static Vector2 downLeft2 = Vector2.down + Vector2.left;
-        private static Vector2 downRight2 = Vector2.down + Vector2.right;
-
-        private static Vector3 upRight3 = Vector3.up + Vector3.right;
-        private static Vector3 upLeft3 = Vector3.up + Vector3.left;
-        private static Vector3 downLeft3 = Vector3.down + Vector3.left;
-        private static Vector3 downRight3 = Vector3.down + Vector3.right;
-
-        private static Vector3 forwardRight = Vector3.forward + Vector3.right;
-        private static Vector3 forwardLeft = Vector3.forward + Vector3.left;
-        private static Vector3 backLeft = Vector3.back + Vector3.left;
-        private static Vector3 backRight = Vector3.back + Vector3.right;
-
-        private static class Normalized
+        private static class Vector2IntDirection
         {
-            public static Vector2 upRight2 = (Vector2.up + Vector2.right).normalized;
-            public static Vector2 upLeft2 = (Vector2.up + Vector2.left).normalized;
-            public static Vector2 downLeft2 = (Vector2.down + Vector2.left).normalized;
-            public static Vector2 downRight2 = (Vector2.down + Vector2.right).normalized;
-
-            public static Vector3 upRight3 = (Vector3.up + Vector3.right).normalized;
-            public static Vector3 upLeft3 = (Vector3.up + Vector3.left).normalized;
-            public static Vector3 downLeft3 = (Vector3.down + Vector3.left).normalized;
-            public static Vector3 downRight3 = (Vector3.down + Vector3.right).normalized;
-
-            public static Vector3 forwardRight = (Vector3.forward + Vector3.right).normalized;
-            public static Vector3 forwardLeft = (Vector3.forward + Vector3.left).normalized;
-            public static Vector3 backLeft = (Vector3.back + Vector3.left).normalized;
-            public static Vector3 backRight = (Vector3.back + Vector3.right).normalized;
+            public static Vector2Int upRight = Vector2Int.up + Vector2Int.right;
+            public static Vector2Int upLeft = Vector2Int.up + Vector2Int.left;
+            public static Vector2Int downLeft = Vector2Int.down + Vector2Int.left;
+            public static Vector2Int downRight = Vector2Int.down + Vector2Int.right;
         }
+
+        private static class Vector2Direction
+        {
+            public static Vector2 upRight = Vector2.up + Vector2.right;
+            public static Vector2 upLeft = Vector2.up + Vector2.left;
+            public static Vector2 downLeft = Vector2.down + Vector2.left;
+            public static Vector2 downRight = Vector2.down + Vector2.right;
+
+            public static class Normalized
+            {
+                public static Vector2 upRight = (Vector2.up + Vector2.right).normalized;
+                public static Vector2 upLeft = (Vector2.up + Vector2.left).normalized;
+                public static Vector2 downLeft = (Vector2.down + Vector2.left).normalized;
+                public static Vector2 downRight = (Vector2.down + Vector2.right).normalized;
+            }
+        }
+
+        private static class Vector3Direction
+        {
+            public static Vector3 upRight = Vector3.up + Vector3.right;
+            public static Vector3 upLeft = Vector3.up + Vector3.left;
+            public static Vector3 downLeft = Vector3.down + Vector3.left;
+            public static Vector3 downRight = Vector3.down + Vector3.right;
+
+            public static Vector3 forwardRight = Vector3.forward + Vector3.right;
+            public static Vector3 forwardLeft = Vector3.forward + Vector3.left;
+            public static Vector3 backLeft = Vector3.back + Vector3.left;
+            public static Vector3 backRight = Vector3.back + Vector3.right;
+
+            public static class Normalized
+            {
+                public static Vector3 upRight = (Vector3.up + Vector3.right).normalized;
+                public static Vector3 upLeft = (Vector3.up + Vector3.left).normalized;
+                public static Vector3 downLeft = (Vector3.down + Vector3.left).normalized;
+                public static Vector3 downRight = (Vector3.down + Vector3.right).normalized;
+
+                public static Vector3 forwardRight = (Vector3.forward + Vector3.right).normalized;
+                public static Vector3 forwardLeft = (Vector3.forward + Vector3.left).normalized;
+                public static Vector3 backLeft = (Vector3.back + Vector3.left).normalized;
+                public static Vector3 backRight = (Vector3.back + Vector3.right).normalized;
+            }
+        }
+
 
         public static Vector2 ToVector2(this Direction direction)
         {
@@ -90,19 +103,19 @@ namespace Toolset
                 case Direction8.Right:
                     return Vector2.right;
                 case Direction8.UpRight:
-                    return upRight2;
+                    return Vector2Direction.upRight;
                 case Direction8.Up:
                     return Vector2.up;
                 case Direction8.UpLeft:
-                    return upLeft2;
+                    return Vector2Direction.upLeft;
                 case Direction8.Left:
                     return Vector2.left;
                 case Direction8.DownLeft:
-                    return downLeft2;
+                    return Vector2Direction.downLeft;
                 case Direction8.Down:
                     return Vector2.down;
                 case Direction8.DownRight:
-                    return downRight2;
+                    return Vector2Direction.downRight;
             }
             return Vector2.zero;
         }
@@ -114,19 +127,19 @@ namespace Toolset
                 case Direction8.Right:
                     return Vector2.right;
                 case Direction8.UpRight:
-                    return Normalized.upRight2;
+                    return Vector2Direction.Normalized.upRight;
                 case Direction8.Up:
                     return Vector2.up;
                 case Direction8.UpLeft:
-                    return Normalized.upLeft2;
+                    return Vector2Direction.Normalized.upLeft;
                 case Direction8.Left:
                     return Vector2.left;
                 case Direction8.DownLeft:
-                    return Normalized.downLeft2;
+                    return Vector2Direction.Normalized.downLeft;
                 case Direction8.Down:
                     return Vector2.down;
                 case Direction8.DownRight:
-                    return Normalized.downRight2;
+                    return Vector2Direction.Normalized.downRight;
             }
             return Vector2.zero;
         }
@@ -154,19 +167,19 @@ namespace Toolset
                 case Direction8.Right:
                     return Vector3.right;
                 case Direction8.UpRight:
-                    return upRight3;
+                    return Vector3Direction.upRight;
                 case Direction8.Up:
                     return Vector3.up;
                 case Direction8.UpLeft:
-                    return upLeft3;
+                    return Vector3Direction.upLeft;
                 case Direction8.Left:
                     return Vector3.left;
                 case Direction8.DownLeft:
-                    return downLeft3;
+                    return Vector3Direction.downLeft;
                 case Direction8.Down:
                     return Vector3.down;
                 case Direction8.DownRight:
-                    return downRight3;
+                    return Vector3Direction.downRight;
             }
             return Vector3.zero;
         }
@@ -178,19 +191,19 @@ namespace Toolset
                 case Direction8.Right:
                     return Vector3.right;
                 case Direction8.UpRight:
-                    return Normalized.upRight3;
+                    return Vector3Direction.Normalized.upRight;
                 case Direction8.Up:
                     return Vector3.up;
                 case Direction8.UpLeft:
-                    return Normalized.upLeft3;
+                    return Vector3Direction.Normalized.upLeft;
                 case Direction8.Left:
                     return Vector3.left;
                 case Direction8.DownLeft:
-                    return Normalized.downLeft3;
+                    return Vector3Direction.Normalized.downLeft;
                 case Direction8.Down:
                     return Vector3.down;
                 case Direction8.DownRight:
-                    return Normalized.downRight3;
+                    return Vector3Direction.Normalized.downRight;
             }
             return Vector3.zero;
         }
@@ -218,19 +231,19 @@ namespace Toolset
                 case Direction8.Right:
                     return Vector3.right;
                 case Direction8.UpRight:
-                    return forwardRight;
+                    return Vector3Direction.forwardRight;
                 case Direction8.Up:
                     return Vector3.forward;
                 case Direction8.UpLeft:
-                    return forwardLeft;
+                    return Vector3Direction.forwardLeft;
                 case Direction8.Left:
                     return Vector3.left;
                 case Direction8.DownLeft:
-                    return backLeft;
+                    return Vector3Direction.backLeft;
                 case Direction8.Down:
                     return Vector3.back;
                 case Direction8.DownRight:
-                    return backRight;
+                    return Vector3Direction.backRight;
             }
             return Vector3.zero;
         }
@@ -242,19 +255,19 @@ namespace Toolset
                 case Direction8.Right:
                     return Vector3.right;
                 case Direction8.UpRight:
-                    return Normalized.forwardRight;
+                    return Vector3Direction.Normalized.forwardRight;
                 case Direction8.Up:
                     return Vector3.forward;
                 case Direction8.UpLeft:
-                    return Normalized.forwardLeft;
+                    return Vector3Direction.Normalized.forwardLeft;
                 case Direction8.Left:
                     return Vector3.left;
                 case Direction8.DownLeft:
-                    return Normalized.backLeft;
+                    return Vector3Direction.Normalized.backLeft;
                 case Direction8.Down:
                     return Vector3.back;
                 case Direction8.DownRight:
-                    return Normalized.backRight;
+                    return Vector3Direction.Normalized.backRight;
             }
             return Vector3.zero;
         }
@@ -282,19 +295,19 @@ namespace Toolset
                 case Direction8.Right:
                     return Vector2Int.right;
                 case Direction8.UpRight:
-                    return upRight;
+                    return Vector2IntDirection.upRight;
                 case Direction8.Up:
                     return Vector2Int.up;
                 case Direction8.UpLeft:
-                    return upLeft;
+                    return Vector2IntDirection.upLeft;
                 case Direction8.Left:
                     return Vector2Int.left;
                 case Direction8.DownLeft:
-                    return downLeft;
+                    return Vector2IntDirection.downLeft;
                 case Direction8.Down:
                     return Vector2Int.down;
                 case Direction8.DownRight:
-                    return downRight;
+                    return Vector2IntDirection.downRight;
             }
             return Vector2Int.zero;
         }
@@ -304,9 +317,19 @@ namespace Toolset
             return (Direction)(((byte)direction + 1) % (byte)Direction._Size);
         }
 
+        public static Direction Left(this Direction direction, int count)
+        {
+            return (Direction)MathfExtension.Repeat((byte)direction + count, (byte)Direction._Size);
+        }
+
         public static Direction8 Left(this Direction8 direction)
         {
             return (Direction8)(((byte)direction + 1) % (byte)Direction8._Size);
+        }
+
+        public static Direction8 Left(this Direction8 direction, int count)
+        {
+            return (Direction8)MathfExtension.Repeat((byte)direction + count, (byte)Direction8._Size);
         }
 
         public static Direction Right(this Direction direction)
@@ -315,10 +338,22 @@ namespace Toolset
             return (Direction)(((byte)direction + size - 1) % size);
         }
 
+        public static Direction Right(this Direction direction, int count)
+        {
+            byte size = (byte)Direction._Size;
+            return (Direction)MathfExtension.Repeat((byte)direction - count, size);
+        }
+
         public static Direction8 Right(this Direction8 direction)
         {
             byte size = (byte)Direction8._Size;
             return (Direction8)(((byte)direction + size - 1) % size);
+        }
+
+        public static Direction8 Right(this Direction8 direction, int count)
+        {
+            byte size = (byte)Direction8._Size;
+            return (Direction8)MathfExtension.Repeat((byte)direction - count, size);
         }
 
         public static Direction Opposite(this Direction direction)
