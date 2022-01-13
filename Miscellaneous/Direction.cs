@@ -31,51 +31,51 @@ namespace Toolset
     {
         private static class Vector2IntDirection
         {
-            public static Vector2Int upRight = Vector2Int.up + Vector2Int.right;
-            public static Vector2Int upLeft = Vector2Int.up + Vector2Int.left;
-            public static Vector2Int downLeft = Vector2Int.down + Vector2Int.left;
-            public static Vector2Int downRight = Vector2Int.down + Vector2Int.right;
+            public static readonly Vector2Int upRight = Vector2Int.up + Vector2Int.right;
+            public static readonly Vector2Int upLeft = Vector2Int.up + Vector2Int.left;
+            public static readonly Vector2Int downLeft = Vector2Int.down + Vector2Int.left;
+            public static readonly Vector2Int downRight = Vector2Int.down + Vector2Int.right;
         }
 
         private static class Vector2Direction
         {
-            public static Vector2 upRight = Vector2.up + Vector2.right;
-            public static Vector2 upLeft = Vector2.up + Vector2.left;
-            public static Vector2 downLeft = Vector2.down + Vector2.left;
-            public static Vector2 downRight = Vector2.down + Vector2.right;
+            public static readonly Vector2 upRight = Vector2.up + Vector2.right;
+            public static readonly Vector2 upLeft = Vector2.up + Vector2.left;
+            public static readonly Vector2 downLeft = Vector2.down + Vector2.left;
+            public static readonly Vector2 downRight = Vector2.down + Vector2.right;
 
             public static class Normalized
             {
-                public static Vector2 upRight = (Vector2.up + Vector2.right).normalized;
-                public static Vector2 upLeft = (Vector2.up + Vector2.left).normalized;
-                public static Vector2 downLeft = (Vector2.down + Vector2.left).normalized;
-                public static Vector2 downRight = (Vector2.down + Vector2.right).normalized;
+                public static readonly Vector2 upRight = (Vector2.up + Vector2.right).normalized;
+                public static readonly Vector2 upLeft = (Vector2.up + Vector2.left).normalized;
+                public static readonly Vector2 downLeft = (Vector2.down + Vector2.left).normalized;
+                public static readonly Vector2 downRight = (Vector2.down + Vector2.right).normalized;
             }
         }
 
         private static class Vector3Direction
         {
-            public static Vector3 upRight = Vector3.up + Vector3.right;
-            public static Vector3 upLeft = Vector3.up + Vector3.left;
-            public static Vector3 downLeft = Vector3.down + Vector3.left;
-            public static Vector3 downRight = Vector3.down + Vector3.right;
+            public static readonly Vector3 upRight = Vector3.up + Vector3.right;
+            public static readonly Vector3 upLeft = Vector3.up + Vector3.left;
+            public static readonly Vector3 downLeft = Vector3.down + Vector3.left;
+            public static readonly Vector3 downRight = Vector3.down + Vector3.right;
 
-            public static Vector3 forwardRight = Vector3.forward + Vector3.right;
-            public static Vector3 forwardLeft = Vector3.forward + Vector3.left;
-            public static Vector3 backLeft = Vector3.back + Vector3.left;
-            public static Vector3 backRight = Vector3.back + Vector3.right;
+            public static readonly Vector3 forwardRight = Vector3.forward + Vector3.right;
+            public static readonly Vector3 forwardLeft = Vector3.forward + Vector3.left;
+            public static readonly Vector3 backLeft = Vector3.back + Vector3.left;
+            public static readonly Vector3 backRight = Vector3.back + Vector3.right;
 
             public static class Normalized
             {
-                public static Vector3 upRight = (Vector3.up + Vector3.right).normalized;
-                public static Vector3 upLeft = (Vector3.up + Vector3.left).normalized;
-                public static Vector3 downLeft = (Vector3.down + Vector3.left).normalized;
-                public static Vector3 downRight = (Vector3.down + Vector3.right).normalized;
+                public static readonly Vector3 upRight = (Vector3.up + Vector3.right).normalized;
+                public static readonly Vector3 upLeft = (Vector3.up + Vector3.left).normalized;
+                public static readonly Vector3 downLeft = (Vector3.down + Vector3.left).normalized;
+                public static readonly Vector3 downRight = (Vector3.down + Vector3.right).normalized;
 
-                public static Vector3 forwardRight = (Vector3.forward + Vector3.right).normalized;
-                public static Vector3 forwardLeft = (Vector3.forward + Vector3.left).normalized;
-                public static Vector3 backLeft = (Vector3.back + Vector3.left).normalized;
-                public static Vector3 backRight = (Vector3.back + Vector3.right).normalized;
+                public static readonly Vector3 forwardRight = (Vector3.forward + Vector3.right).normalized;
+                public static readonly Vector3 forwardLeft = (Vector3.forward + Vector3.left).normalized;
+                public static readonly Vector3 backLeft = (Vector3.back + Vector3.left).normalized;
+                public static readonly Vector3 backRight = (Vector3.back + Vector3.right).normalized;
             }
         }
 
@@ -334,39 +334,39 @@ namespace Toolset
 
         public static Direction Right(this Direction direction)
         {
-            byte size = (byte)Direction._Size;
+            const byte size = (byte)Direction._Size;
             return (Direction)(((byte)direction + size - 1) % size);
         }
 
         public static Direction Right(this Direction direction, int count)
         {
-            byte size = (byte)Direction._Size;
+            const byte size = (byte)Direction._Size;
             return (Direction)MathfExtension.Repeat((byte)direction - count, size);
         }
 
         public static Direction8 Right(this Direction8 direction)
         {
-            byte size = (byte)Direction8._Size;
+            const byte size = (byte)Direction8._Size;
             return (Direction8)(((byte)direction + size - 1) % size);
         }
 
         public static Direction8 Right(this Direction8 direction, int count)
         {
-            byte size = (byte)Direction8._Size;
+            const byte size = (byte)Direction8._Size;
             return (Direction8)MathfExtension.Repeat((byte)direction - count, size);
         }
 
         public static Direction Opposite(this Direction direction)
         {
-            byte size = (byte)Direction._Size;
-            byte rotation = (byte)(size >> 1);
+            const byte size = (byte)Direction._Size;
+            const byte rotation = (byte)(size >> 1);
             return (Direction)(((byte)direction + rotation) % size);
         }
 
         public static Direction8 Opposite(this Direction8 direction)
         {
-            byte size = (byte)Direction8._Size;
-            byte rotation = (byte)(size >> 1);
+            const byte size = (byte)Direction8._Size;
+            const byte rotation = (byte)(size >> 1);
             return (Direction8)(((byte)direction + rotation) % size);
         }
 
