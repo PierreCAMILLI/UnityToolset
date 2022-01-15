@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Toolset
 {
     [System.Serializable]
-    public abstract class DebugSetting
+    public abstract class DebugSetting : System.ICloneable
     {
         private static DebugSetting _current;
         /// <summary>
@@ -46,6 +46,11 @@ namespace Toolset
         public T Cast<T>() where T : DebugSetting
         {
             return this as T;
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }

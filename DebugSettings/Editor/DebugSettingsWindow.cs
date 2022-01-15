@@ -16,12 +16,14 @@ namespace Toolset
         private const string SettingLabel = "Setting";
         private const string NameLabel = "Name";
 
-        private const string DefaultNewSettingPrefix = "New Setting ";
+        private const string NewSettingDefaultPrefix = "New Setting ";
+        private const string CopySettingDefaultSuffix = " (Copy)";
         private const string NoneSettingName = "None";
 
         private const string SettingParametersHeader = "Setting Parameters";
-        private const string RemoveButtonLabel = "(-) Remove Setting";
         private const string AddButtonLabel = "(+) Add Setting";
+        private const string CopyButtonLabel = "(=) Copy Setting";
+        private const string RemoveButtonLabel = "(-) Remove Setting";
 
         private const string ClearAllMenuLabel = "Clear All";
 
@@ -77,6 +79,8 @@ namespace Toolset
                 return null;
             }
         }
+
+        public bool HasSelectedSetting => _popupIndex > 0;
 
         [MenuItem(WindowsLocation)]
         static void Init()
@@ -135,20 +139,34 @@ namespace Toolset
                         EditorGUI.indentLevel--;
                     }
 
-                    EditorGUILayout.Space();
-
-                    if (GUILayout.Button(RemoveButtonLabel))
-                    {
-                        GUI.FocusControl(null);
-                        _popupIndex = RemoveSetting(_popupIndex);
-                    }
                 }
 
+                EditorGUILayout.Space();
+
+                EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button(AddButtonLabel))
                 {
                     GUI.FocusControl(null);
                     _popupIndex = AddSetting();
                 }
+                if (HasSelectedSetting)
+                {
+                    if (GUILayout.Button(CopyButtonLabel))
+                    {
+                        GUI.FocusControl(null);
+                        _popupIndex = CopySetting();
+                    }
+
+                    Color cacheColor = GUI.backgroundColor;
+                    GUI.backgroundColor = Color.red;
+                    if (GUILayout.Button(RemoveButtonLabel))
+                    {
+                        GUI.FocusControl(null);
+                        _popupIndex = RemoveSetting(_popupIndex);
+                    }
+                    GUI.backgroundColor = cacheColor;
+                }
+                EditorGUILayout.EndHorizontal();
 
                 _serializedObject.ApplyModifiedProperties();
             }
@@ -218,9 +236,17 @@ namespace Toolset
 
         protected int AddSetting()
         {
-            SettingNames.Add(DefaultNewSettingPrefix + SettingNames.Count);
+            SettingNames.Add(NewSettingDefaultPrefix + SettingNames.Count);
             DebugSetting setting = System.Activator.CreateInstance(_script.GetClass()) as DebugSetting;
             DebugSettings.Add(setting);
+            return DebugSettings.Count;
+        }
+
+        protected int CopySetting()
+        {
+            SettingNames.Add(_settingNames[_popupIndex] + CopySettingDefaultSuffix);
+            DebugSetting copySetting = (DebugSetting)SelectedSetting.Clone();
+            DebugSettings.Add(copySetting);
             return DebugSettings.Count;
         }
 
