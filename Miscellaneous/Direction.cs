@@ -380,12 +380,12 @@ namespace Toolset
             return (Direction)((byte)direction >> 1);
         }
 
-        public static byte ToByte(this Direction direction)
+        public static Bitset8 ToBitset(this Direction direction)
         {
             return (byte)(1 << (byte)direction);
         }
 
-        public static byte ToByte(this Direction8 direction)
+        public static Bitset8 ToBitset(this Direction8 direction)
         {
             return (byte)(1 << (byte)direction);
         }

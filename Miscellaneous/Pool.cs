@@ -139,6 +139,7 @@ namespace Toolset
         /// <returns></returns>
         public T[] Pop(int count)
         {
+            count = Mathf.Min(count, _pool.Count);
             T[] items = new T[count];
             for (int i = 0; i < count; ++i)
             {
@@ -152,13 +153,14 @@ namespace Toolset
         /// The array will be filled with as much place as available or with the whole pool content
         /// </summary>
         /// <param name="array"></param>
-        public void Pop(T[] array)
+        public int Pop(T[] array)
         {
             int count = Mathf.Min(array.Length, _pool.Count);
             for (int i = 0; i < count; ++i)
             {
                 array[i] = Pop();
             }
+            return count;
         }
 
         /// <summary>
