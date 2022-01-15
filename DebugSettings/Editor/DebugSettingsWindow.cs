@@ -106,7 +106,7 @@ namespace Toolset
 
             if (newScript != _script)
             {
-                if (newScript == null || newScript.GetClass().IsSubclassOf(typeof(DebugSetting)))
+                if (newScript == null || IsScriptImplementsDebugSetting(newScript))
                 {
                     ClearAll();
                     _script = newScript;
@@ -200,6 +200,11 @@ namespace Toolset
                     EditorGUILayout.PropertyField(p, drawChildren);
                 }
             }
+        }
+
+        public static bool IsScriptImplementsDebugSetting(MonoScript script)
+        {
+            return script != null && script.GetClass() != null && script.GetClass().IsSubclassOf(typeof(DebugSetting));
         }
 
         protected void SelectSetting(int popupIndex)
