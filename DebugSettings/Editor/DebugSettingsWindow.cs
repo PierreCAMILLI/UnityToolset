@@ -125,7 +125,7 @@ namespace Toolset
 
                 SelectSetting(index);
 
-                if (_popupIndex > 0)
+                if (HasSelectedSetting)
                 {
                     RenameSetting(_popupIndex, EditorGUILayout.TextField(NameLabel, SettingNames[_popupIndex]));
 
