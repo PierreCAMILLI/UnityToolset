@@ -11,7 +11,7 @@ public class BitsetTest
     [Test]
     public void BitsetSimplePasses()
     {
-        Bitset bitset = Bitset.Zero;
+        IBitset bitset = Bitset.Zero;
         Assert.IsTrue(bitset.None());
         Assert.IsFalse(bitset.Any());
         Assert.IsFalse(bitset.All());
@@ -43,5 +43,19 @@ public class BitsetTest
         Assert.IsTrue(bitset.All());
         bitset.Reset();
         Assert.IsTrue(bitset.None());
+        Assert.AreEqual(Bitset.Zero.Flip(), Bitset.Full);
+    }
+
+    [Test]
+    public void Bitset64SimplePasses()
+    {
+        Bitset64 bitset = new Bitset64();
+        bitset.Set(60, true);
+        Assert.AreNotEqual(Bitset64.Zero, bitset);
+
+        Assert.AreEqual(Bitset64.Zero.Flip(), Bitset64.Full);
+
+        Assert.IsTrue(!Bitset64.Full.Equals(Bitset16.Full));
+        Assert.AreNotEqual(Bitset64.Full, Bitset16.Full);
     }
 }
